@@ -5,6 +5,8 @@ import "forge-std/Test.sol";
 import {ERC20Allocations, UD60x18, convert} from "../src/ERC20Allocations.sol";
 import {ERC20AllocationsLibrary} from "../src/ERC20AllocationsLibrary.sol";
 
+/// modified from solmate ERC20 unit test (https://github.com/transmissions11/solmate/blob/main/src/test/ERC20.t.sol)
+
 contract ERC20Allocations_Test is Test {
     ERC20Allocations token;
     ERC20AllocationsLibrary allocationsLibrary;

@@ -2,11 +2,13 @@
 pragma solidity 0.8.19;
 
 import "forge-std/Test.sol";
-import {ERC20Allocations as MockERC20} from "../src/ERC20Allocations.sol";
+import {ERC20Allocations} from "../src/ERC20Allocations.sol";
 import {ERC20AllocationsLibrary} from "../src/ERC20AllocationsLibrary.sol";
 
+/// modified from solmate ERC20 fuzz test (https://github.com/transmissions11/solmate/blob/main/src/test/ERC20.t.sol)
+
 contract ERC20Allocations_Test is Test {
-    MockERC20 token;
+    ERC20Allocations token;
     ERC20AllocationsLibrary allocationsLibrary;
 
     bytes32 constant PERMIT_TYPEHASH =
@@ -15,7 +17,7 @@ contract ERC20Allocations_Test is Test {
         );
 
     function setUp() public {
-        token = new MockERC20("Token", "TKN", 18);
+        token = new ERC20Allocations("Token", "TKN", 18);
         allocationsLibrary = new ERC20AllocationsLibrary();
     }
 
@@ -24,7 +26,7 @@ contract ERC20Allocations_Test is Test {
         string calldata symbol,
         uint8 decimals
     ) public {
-        MockERC20 tkn = new MockERC20(name, symbol, decimals);
+        ERC20Allocations tkn = new ERC20Allocations(name, symbol, decimals);
         assertEq(tkn.name(), name);
         assertEq(tkn.symbol(), symbol);
         assertEq(tkn.decimals(), decimals);
