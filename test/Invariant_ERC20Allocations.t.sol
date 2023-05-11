@@ -5,24 +5,27 @@ import "forge-std/Test.sol";
 import {ERC20Allocations} from "../src/ERC20Allocations.sol";
 import {ERC20AllocationsLibrary} from "../src/ERC20AllocationsLibrary.sol";
 
-contract ERC20Invariants is Test {
-    BalanceSum balanceSum;
+contract ERC20AllocationsInvariants is Test {
+    ERC20AllocationsInvariantsHandler erc20AllocationsInvariantsHandler;
     ERC20Allocations token;
     ERC20AllocationsLibrary allocationsLibrary;
 
     function setUp() public {
         token = new ERC20Allocations("Token", "TKN", 18);
-        balanceSum = new BalanceSum(token);
+        erc20AllocationsInvariantsHandler = new ERC20AllocationsInvariantsHandler(
+            token
+        );
         allocationsLibrary = new ERC20AllocationsLibrary();
 
-        targetContract(address(balanceSum));
+        targetContract(address(erc20AllocationsInvariantsHandler));
     }
 
     function invariantERC20Allocations() public {
         // run one last time after invariant runs
         // note: it is also called randomly in between random calls to assert accuracy
-        balanceSum.assertBalanceSumEqualsTotalSupply();
-        balanceSum.assertTotalAllocationsIsGreaterThanOrEqualToEarneds(42, 42);
+        erc20AllocationsInvariantsHandler.assertBalanceSumEqualsTotalSupply();
+        erc20AllocationsInvariantsHandler
+            .assertTotalAllocationsIsGreaterThanOrEqualToEarneds(42, 42);
     }
 
     function testThis() public {
@@ -72,7 +75,7 @@ contract ERC20Invariants is Test {
     }
 }
 
-contract BalanceSum is Test {
+contract ERC20AllocationsInvariantsHandler is Test {
     ERC20Allocations token;
     uint256 public sum;
     ERC20AllocationsLibrary allocationsLibrary;
@@ -195,7 +198,6 @@ contract BalanceSum is Test {
     }
 
     function privateSkip(uint256 secondsAhead) private {
-        console.log(secondsAhead);
         secondsAhead = bound(secondsAhead, 0, 100 * 365 days);
         vm.warp(lastTimestamp + secondsAhead);
         lastTimestamp = block.timestamp;
