@@ -1,6 +1,25 @@
 [profile.default]
-src = "src"
-out = "out"
-libs = ["lib"]
+src = 'src'
+out = 'out'
+libs = ['lib']
+solc = "0.8.19"
+optimizer = true
+optimizer_runs = 1_000_000
 
+gas_reports = ["*"]
+
+[fuzz]
+runs = 1000
+
+[invariant]
+fail_on_revert = true
+depth = 30
+
+[profile.ci]
+verbosity = 4
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
+
+remappings = [
+    "prb-math/=lib/prb-math/src/",
+    "solmate/=lib/solmate/src/"
+]
