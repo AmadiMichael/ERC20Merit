@@ -13,3 +13,28 @@ This data is stored permanently on the blockchain and can be queried on-chain to
 There are several potential use cases for ERC20 Allocations. For example, this data can be used for fair governance voting by allowing token holders to vote in proportion to their loyalty and stake in the project over time , rather than randomly or based on the amount of tokens held at a single timestamp. It can also be used for airdrop distribution based on the loyalty of another token's holders. Additionally, this data can be used for hold-to-earn reward distribution without requiring users to stake their tokens ("Liquid staking" if you will), which reduces the risks associated with staking if the staking contract is compromised.
 
 Overall, ERC20 Allocations is a powerful extension of the ERC20 token standard that provides permanent, on-chain data about token holder loyalty and stake. This data has numerous potential use cases and can provide a more fair, transparent, and secure way of distributing rewards and making governance decisions within blockchain projects.
+
+# **How it works**
+
+For efficiently calculating the "allocation coeffiecient" of any given address, ERC20 Allocations use a similar model as Synthetix's staking rewards contract
+
+$$
+A(u, x, y) = B \left( \sum_{t = 0}^{y - 1} \frac {AR}{T} - \sum_{t = 0}^{x - 1} \frac {AR}{T}
+\right)
+$$
+
+    Where;
+        u = user's address
+        x = start time
+        y = end time
+        B = balance of user (constant between time x and y - 1)
+        AR = Allocation rate: allocation coeffiecient distributed per second
+        T = total supply
+
+Some modifications were made to ensure that the total allocations distributed between any given time is equal to (or very close to due to solidity rounding errors) to the sum of all hodlers allocation coefficient within that same period of time.
+
+The Synthetix staking reward algorithm does support this as allocations are still distributed even when total supply is 0 which causes allocation coefficients to be distributed but to no address leading to the invariant (totalAllocations == sumAllocations) being false. More info [here]("https://0xmacro.com/blog/synthetix-staking-rewards-issue-inefficient-reward-distribution/"). To solve this. ERC20 Allocations introduces the concept of Sections which tracks the times when total supply was 0 and prevents distribution of allocations during these times.
+
+Synthetix staking reward algorithm helps accurately knowing how much of a hodler an address was during the current timestamp. To make this more dynamic, we want anyone to be able to (on chain) fetch this same data but for any given period of time in the past or present. To do this, ERC20 Allocations uses the same pattern as Openzeppelin's ERC20 Snapshots to store the state of the variables used to calculate allocations of users and total allocations so that it can be queried by timestamp and used in different ways.
+
+For utmost accuracy PRB-Math library is also used.
