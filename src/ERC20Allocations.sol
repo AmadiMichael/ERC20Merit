@@ -193,23 +193,31 @@ contract ERC20Allocations is AbstractERC20 {
     /// updtaes last update time to be == block.timepstamp to avoid total allocations accounting for time when total supply was 0
     function resumeAllocationDistribution() private {
         /// if allocation distribution is currently paused...
-        if (sectionBasedInfo.startTime != 0 && sectionBasedInfo.endTime == 0) {
+        if (isAllocationsPaused()) {
             _updateSectionBasedInfoSnapshot();
             sectionBasedInfo.endTime = uint128(block.timestamp);
         }
         // set lastUpdateTime to be now if total supply == 0 (i.e if allocation is paused and we are minting a non zero value)
+        // not within the if block to avoid updating snapshot at initTime
         generalBasedInfo.lastUpdateTime = block.timestamp;
+    }
+
+    function isAllocationToBePaused() internal view virtual returns (bool) {
+        return totalSupply == 0;
+    }
+
+    function isAllocationsPaused() public view virtual returns (bool) {
+        return sectionBasedInfo.startTime != 0 && sectionBasedInfo.endTime == 0;
     }
 
     /// @notice called after `transferTakeFrom` to check if the the transaction made totalSupply to be 0 (ie the tx burnt all of totalSupply)
     function checkIfZeroSupply() private {
-        // pause allocation distribution and increment total allocations.
-        if (totalSupply == 0) stopAllocationDistribution();
+        if (isAllocationToBePaused()) stopAllocationDistribution();
     }
 
     /// @notice called before transferGiveTo to check if the totalSupply for that asset is 0 (ie the tx is going to mint a non-zero amount of tokens).
     function checkIfNonZeroSupply() private {
-        if (totalSupply == 0) resumeAllocationDistribution();
+        if (isAllocationToBePaused()) resumeAllocationDistribution();
     }
 
     /**

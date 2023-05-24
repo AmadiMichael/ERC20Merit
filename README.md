@@ -1,14 +1,19 @@
-# **ERC20 ALLOCATIONS**
+# **ERC20 ALLOCATIONS (Time-weighted Aggregated Shares)**
 
-ERC20 Allocations is an extension of the widely used ERC20 token standard. It provides functionality that automatically tracks and stores data that can be used to calculate the "hodlership" of an address for that token. Specifically, this extension introduces a new concept called a "allocation coefficient", which is of type `uint` and is distributed to token holders on a per-second basis based on the percentage of the total supply each user owns at that given second. This ensures that the allocation coefficient of each token holder is proportionate to their stake in the project and over time. Removing the ability for addresses with financial capacity from atomically taking advantage of the perks of holding a token for a short period of time.
+### - **ERC20 token with an Onchain loyalty oracle**
 
-This data is stored permanently onchain and can be queried by other smart contracts to determine the top token holders or simply an address's loyalty to that token within a given period of time. To do this, one needs to retrieve the total allocation distributed as of the start and end of the given period, as well as the allocation coefficients of each token holder we wish to check for at those times. With this information, we can accurately calculate the allocations for each token holder during the given period as a percentage (allocation(user) / total allocation distributed) since this would just be an aggregate of each users allocations per second within that time frame.
+### - **An ERC20 extension for trustlessly attributing perks/privileges to token holders based on their holdings over time.**
 
-- Get the total allocations distributed as at timestamp 100 and 200 each. We will call them `totalAllocation(100)` and `totalAllocation(200)` respectively.
-- Get the allocations of `address(0xabcd)` as at timestamp 100 and 200 each. We will call them `allocations(address(0xabcd), 100)` and `allocations(address(0xabcd), 200)` respectively.
-- Allocations of address(0xabcd) between 100 and 200 is `allocations(address(0xabcd), 200) - allocations(address(0xabcd), 100)`
-- The total allocations distributed to holders of that token between time 100 and 200 is `totalAllocation(200) - totalAllocation(100)`
+ERC20 Allocations is an extension of the widely used ERC20 token standard. It provides functionality that automatically tracks and stores data that can be used to calculate the "hodlership" of an address for that token. Specifically, this extension introduces a new concept called a "allocation coefficient", which is of type `uint256` and is distributed to token holders on a per-second basis based on the percentage of the total supply each user owns at that given second. This ensures that the allocation coefficient of each token holder is proportionate to their stake in the project and over time. Removing the ability for addresses with financial capacity from atomically taking advantage of the perks of holding a token for a short period of time.
+
+This data is stored permanently onchain and can be queried by other smart contracts to determine the top token holders or simply an address's loyalty to that token within a given period of time. To do this, one needs to retrieve the total allocation distributed as of the start and en`d of the given period, as well as the allocation coefficients of each token holder we wish to check for at those times. With this information, we can accurately calculate the allocations for each token holder during the given period as a percentage (allocation(user) / total allocation distributed) since this would just be an aggregate of each users allocations per second within that time frame.
+
+### **Under the hood, to get the allocations of an address between timestamps 100 and 200, we;**
+
+- Get the total allocations distributed between time 100 and 200 by calling `totalAllocationsBetween(tokenAddress, 100, 200)`. Under the hood this gets the total allocations distributed as at timestamps 100 and 200 and subtracts the latter from the former.
+- Get the allocations earned by the address in question between time 100 and 200 by calling `allocatedBetween(tokenAddress, userAddress, 100, 200)`. Under the hood this gets the allocations earned by the user as at timestamps 100 and 200 and subtracts the latter from the former.
 - Both data can be queried individually and used as a fraction for calculating anything. DAO voting rights, Airdrop distribution, hold to earn reward distribution.
+- The allocations of a user or total allocation distributed at a given time can be queried individually too not just between ranges for other use cases.
 
 There are several potential use cases for ERC20 Allocations. For example, this data can be used for fair governance voting by allowing token holders to vote in proportion to their loyalty and stake in the project over time, rather than randomly or based on the amount of tokens held at a single timestamp. It can also be used for airdrop distribution based on the loyalty of another token's holders. Additionally, this data can be used for hold-to-earn reward distribution without requiring users to stake their tokens ("Liquid staking" if you will), which reduces the risks associated with staking if the staking contract is compromised.
 

@@ -27,52 +27,6 @@ contract ERC20AllocationsInvariants is Test {
         erc20AllocationsInvariantsHandler
             .assertTotalAllocationsIsGreaterThanOrEqualToEarneds(42, 42);
     }
-
-    function testThis() public {
-        // vm.warp(1);
-        // // token.mint(
-        // //     address(this),
-        // //     1167805047274141983172893812
-        // // );
-        // console.log(token.MAX_SUPPLY());
-        // vm.warp(5);
-        // token.mint(address(this), 7301);
-        // vm.warp(27);
-        // token.mint(
-        //     address(0xabcd),
-        //     36717430630808027468154168254911183362900000000000 - 7303
-        // );
-        // vm.warp(66);
-        // token.mint(address(0xcafe), 1);
-        // vm.warp(150);
-        // token.mint(address(0xabcd), 1);
-        // console.log(
-        //     "total allocation at 3 by 4",
-        //     allocationsLibrary.getTotalAllocations(address(token), 134)
-        // );
-        // console.log(
-        //     "allocation at 3 by 4",
-        //     allocationsLibrary.allocated(address(token), address(this), 134)
-        // );
-        // console.log(
-        //     "allocation at 3 by 4",
-        //     allocationsLibrary.allocated(address(token), address(0xabcd), 134)
-        // );
-        // console.log(
-        //     "allocation at 3 by 4",
-        //     allocationsLibrary.allocated(address(token), address(0xcafe), 134)
-        // );
-        // // token.transfer(address(this), 1167805047274141983172893812 / 2);
-        // // vm.warp(7);
-        // // console.log(
-        // //     "total allocation at 3 by 4",
-        // //     allocationsLibrary.getTotalAllocations(address(token), 6)
-        // // );
-        // // console.log(
-        // //     "allocation at 3 by 4",
-        // //     allocationsLibrary.allocated(address(token), address(this), 6)
-        // // );
-    }
 }
 
 contract ERC20AllocationsInvariantsHandler is Test {

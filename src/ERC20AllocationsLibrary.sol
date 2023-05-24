@@ -9,33 +9,60 @@ import {ERC20Allocations, IERC20Allocations} from "./ERC20Allocations.sol";
 import {UD60x18, convert} from "prb-math/UD60x18.sol";
 
 contract ERC20AllocationsLibrary {
+    function allocationBetween(
+        address assetAddress,
+        address _account,
+        uint256 start,
+        uint256 end
+    ) external view returns (uint256 allocation) {
+        uint256 multiplier = ERC20Allocations(assetAddress).MULTIPLIER();
+
+        uint256 allocationAtStartTime = _allocated(
+            ERC20Allocations(assetAddress),
+            _account,
+            start,
+            multiplier
+        );
+        uint256 allocationAtEndTime = _allocated(
+            ERC20Allocations(assetAddress),
+            _account,
+            end,
+            multiplier
+        );
+
+        allocation = allocationAtEndTime - allocationAtStartTime;
+    }
+
     /// @notice returns an accurate (even while contract is paused) allocated coefficient of ID of `accountAddress`
     function allocated(
         address assetAddress,
         address _account,
         uint256 time
-    ) public view returns (uint256 allocation) {
-        ERC20Allocations token = ERC20Allocations(assetAddress);
-        uint256 multiplier = token.MULTIPLIER();
+    ) external view returns (uint256 allocation) {
+        uint256 multiplier = ERC20Allocations(assetAddress).MULTIPLIER();
+        return
+            _allocated(
+                ERC20Allocations(assetAddress),
+                _account,
+                time,
+                multiplier
+            );
+    }
 
-        IERC20Allocations.GeneralBasedInfo memory generalBasedInfo = token
-            .generalBasedInfoAt(time);
-        IERC20Allocations.UserBasedInfo memory userBasedInfo = token
-            .userBasedInfoAt(time, _account);
-
-        // get allocationPerToken
-        UD60x18 _allocationPerToken = allocationPerToken(
-            generalBasedInfo,
-            time,
-            token.ALLOCATION_RATE(),
-            multiplier
+    function totalAllocationBetween(
+        address assetAddress,
+        uint256 start,
+        uint256 end
+    ) external view returns (uint256 totalAllocations) {
+        uint256 totalAllocationsAtStartTime = _getTotalAllocations(
+            ERC20Allocations(assetAddress),
+            start
         );
-
-        allocation = allocations(
-            userBasedInfo,
-            _allocationPerToken,
-            multiplier
+        uint256 totalAllocationsAtEndTime = _getTotalAllocations(
+            ERC20Allocations(assetAddress),
+            end
         );
+        return totalAllocationsAtEndTime - totalAllocationsAtStartTime;
     }
 
     /// @notice returns totalAllocations distributed at time
@@ -44,7 +71,13 @@ contract ERC20AllocationsLibrary {
         address assetAddress,
         uint256 time
     ) external view returns (uint256 _totalAllocations) {
-        ERC20Allocations token = ERC20Allocations(assetAddress);
+        return _getTotalAllocations(ERC20Allocations(assetAddress), time);
+    }
+
+    function _getTotalAllocations(
+        ERC20Allocations token,
+        uint256 time
+    ) private view returns (uint256 _totalAllocations) {
         IERC20Allocations.GeneralBasedInfo memory generalBasedInfo = token
             .generalBasedInfoAt(time);
 
@@ -83,6 +116,32 @@ contract ERC20AllocationsLibrary {
                         (time - sectionBasedInfo.endTime));
             }
         }
+    }
+
+    function _allocated(
+        ERC20Allocations token,
+        address _account,
+        uint256 time,
+        uint256 multiplier
+    ) private view returns (uint256 allocation) {
+        IERC20Allocations.GeneralBasedInfo memory generalBasedInfo = token
+            .generalBasedInfoAt(time);
+        IERC20Allocations.UserBasedInfo memory userBasedInfo = token
+            .userBasedInfoAt(time, _account);
+
+        // get allocationPerToken
+        UD60x18 _allocationPerToken = allocationPerToken(
+            generalBasedInfo,
+            time,
+            token.ALLOCATION_RATE(),
+            multiplier
+        );
+
+        allocation = allocations(
+            userBasedInfo,
+            _allocationPerToken,
+            multiplier
+        );
     }
 
     function allocationPerToken(
