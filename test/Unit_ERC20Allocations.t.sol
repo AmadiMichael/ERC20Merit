@@ -2,14 +2,14 @@
 pragma solidity 0.8.19;
 
 import "forge-std/Test.sol";
-import {ERC20Allocations, UD60x18, convert} from "../src/ERC20Allocations.sol";
-import {ERC20AllocationsLibrary} from "../src/ERC20AllocationsLibrary.sol";
+import {ERC20Merit, UD60x18, convert} from "../src/ERC20Merit.sol";
+import {ERC20MeritLibrary} from "../src/ERC20MeritLibrary.sol";
 
 /// modified from solmate ERC20 unit test (https://github.com/transmissions11/solmate/blob/main/src/test/ERC20.t.sol)
 
-contract ERC20Allocations_Test is Test {
-    ERC20Allocations token;
-    ERC20AllocationsLibrary allocationsLibrary;
+contract ERC20Merit_Test is Test {
+    ERC20Merit token;
+    ERC20MeritLibrary allocationsLibrary;
 
     struct TimeBasedInfo {
         uint256 startTime;
@@ -22,8 +22,8 @@ contract ERC20Allocations_Test is Test {
         );
 
     function setUp() public {
-        token = new ERC20Allocations("Token", "TKN", 18);
-        allocationsLibrary = new ERC20AllocationsLibrary();
+        token = new ERC20Merit("Token", "TKN", 18);
+        allocationsLibrary = new ERC20MeritLibrary();
     }
 
     function testMint() public {
@@ -296,10 +296,10 @@ contract ERC20Allocations_Test is Test {
 
     function logAllocationInfo(uint256 time1, uint256 time2) private view {
         console.log(
-            allocationsLibrary.getTotalAllocations(address(token), time1)
+            allocationsLibrary.getTotalMeritAllocations(address(token), time1)
         );
         console.log(
-            allocationsLibrary.getTotalAllocations(address(token), time2)
+            allocationsLibrary.getTotalMeritAllocations(address(token), time2)
         );
 
         console.log(
@@ -329,7 +329,7 @@ contract ERC20Allocations_Test is Test {
         // skip by 5 seconds
         skip(5); // t = 5
         assertEq(
-            allocationsLibrary.getTotalAllocations(address(token), 6),
+            allocationsLibrary.getTotalMeritAllocations(address(token), 6),
             allocationRate * 5
         );
         assertEq(
@@ -350,7 +350,7 @@ contract ERC20Allocations_Test is Test {
 
         skip(5); // t = 10
         assertEq(
-            allocationsLibrary.getTotalAllocations(address(token), 11),
+            allocationsLibrary.getTotalMeritAllocations(address(token), 11),
             (allocationRate * 5) + (allocationRate * 5)
         );
         assertEq(
@@ -371,7 +371,7 @@ contract ERC20Allocations_Test is Test {
 
         skip(5); // t = 15
         assertEq(
-            allocationsLibrary.getTotalAllocations(address(token), 16),
+            allocationsLibrary.getTotalMeritAllocations(address(token), 16),
             (allocationRate * 5) + (allocationRate * 5) + (allocationRate * 5)
         );
         assertEq(
@@ -396,7 +396,7 @@ contract ERC20Allocations_Test is Test {
 
         skip(5); // t = 20
         assertEq(
-            allocationsLibrary.getTotalAllocations(address(token), 21),
+            allocationsLibrary.getTotalMeritAllocations(address(token), 21),
             (allocationRate * 5) +
                 (allocationRate * 5) +
                 (allocationRate * 5) +
@@ -429,7 +429,7 @@ contract ERC20Allocations_Test is Test {
 
         skip(5); // t = 25
         assertEq(
-            allocationsLibrary.getTotalAllocations(address(token), 26),
+            allocationsLibrary.getTotalMeritAllocations(address(token), 26),
             (allocationRate * 5) +
                 (allocationRate * 5) +
                 (allocationRate * 5) +
@@ -464,7 +464,7 @@ contract ERC20Allocations_Test is Test {
 
         skip(20); // t = 45 // no rent distributed while 0 supply
         assertEq(
-            allocationsLibrary.getTotalAllocations(address(token), 46),
+            allocationsLibrary.getTotalMeritAllocations(address(token), 46),
             (allocationRate * 5) +
                 (allocationRate * 5) +
                 (allocationRate * 5) +
@@ -495,7 +495,7 @@ contract ERC20Allocations_Test is Test {
 
         skip(5); // t = 50
         assertEq(
-            allocationsLibrary.getTotalAllocations(address(token), 51),
+            allocationsLibrary.getTotalMeritAllocations(address(token), 51),
             (allocationRate * 5) +
                 (allocationRate * 5) +
                 (allocationRate * 5) +
@@ -529,7 +529,7 @@ contract ERC20Allocations_Test is Test {
 
         skip(5); // t = 55
         assertEq(
-            allocationsLibrary.getTotalAllocations(address(token), 56),
+            allocationsLibrary.getTotalMeritAllocations(address(token), 56),
             (allocationRate * 5) +
                 (allocationRate * 5) +
                 (allocationRate * 5) +
@@ -571,7 +571,9 @@ contract ERC20Allocations_Test is Test {
                 ) +
                 allocationsLibrary.allocated(address(token), OWNER, 6)
         );
-        console.log(allocationsLibrary.getTotalAllocations(address(token), 6));
+        console.log(
+            allocationsLibrary.getTotalMeritAllocations(address(token), 6)
+        );
 
         console.log(
             allocationsLibrary.allocated(address(token), address(0xCAFE), 16) +
@@ -582,7 +584,9 @@ contract ERC20Allocations_Test is Test {
                 ) +
                 allocationsLibrary.allocated(address(token), OWNER, 16)
         );
-        console.log(allocationsLibrary.getTotalAllocations(address(token), 16));
+        console.log(
+            allocationsLibrary.getTotalMeritAllocations(address(token), 16)
+        );
 
         console.log(
             allocationsLibrary.allocated(address(token), address(0xCAFE), 26) +
@@ -593,7 +597,9 @@ contract ERC20Allocations_Test is Test {
                 ) +
                 allocationsLibrary.allocated(address(token), OWNER, 26)
         );
-        console.log(allocationsLibrary.getTotalAllocations(address(token), 26));
+        console.log(
+            allocationsLibrary.getTotalMeritAllocations(address(token), 26)
+        );
 
         console.log(
             allocationsLibrary.allocated(address(token), address(0xCAFE), 36) +
@@ -604,7 +610,9 @@ contract ERC20Allocations_Test is Test {
                 ) +
                 allocationsLibrary.allocated(address(token), OWNER, 36)
         );
-        console.log(allocationsLibrary.getTotalAllocations(address(token), 36));
+        console.log(
+            allocationsLibrary.getTotalMeritAllocations(address(token), 36)
+        );
 
         console.log(
             allocationsLibrary.allocated(address(token), address(0xCAFE), 46) +
@@ -615,7 +623,9 @@ contract ERC20Allocations_Test is Test {
                 ) +
                 allocationsLibrary.allocated(address(token), OWNER, 46)
         );
-        console.log(allocationsLibrary.getTotalAllocations(address(token), 46));
+        console.log(
+            allocationsLibrary.getTotalMeritAllocations(address(token), 46)
+        );
 
         console.log(
             allocationsLibrary.allocated(address(token), address(0xCAFE), 56) +
@@ -626,6 +636,8 @@ contract ERC20Allocations_Test is Test {
                 ) +
                 allocationsLibrary.allocated(address(token), OWNER, 56)
         );
-        console.log(allocationsLibrary.getTotalAllocations(address(token), 56));
+        console.log(
+            allocationsLibrary.getTotalMeritAllocations(address(token), 56)
+        );
     }
 }

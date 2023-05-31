@@ -3,7 +3,7 @@
 pragma solidity 0.8.19;
 import {UD60x18} from "prb-math/UD60x18.sol";
 
-interface IERC20Allocations {
+interface IERC20Merit {
     error InsufficientAllowance(uint256 allowed, uint256 amount);
     error InsufficientBalance(uint256 balance, uint256 amount);
     error PermitDeadlineExpired(uint256 deadline, uint256 currentTimestamp);
@@ -43,16 +43,16 @@ interface IERC20Allocations {
     struct GeneralBasedInfo {
         // 4 slots
         uint256 lastUpdateTime;
-        uint256 totalAllocations;
-        UD60x18 allocationPerTokenStored;
+        uint256 totalMeritAllocations;
+        UD60x18 meritAllocationPerTokenStored;
         uint256 totalSupply;
     }
 
     struct UserBasedInfo {
         // 4 slots
         uint256 lastUpdateTime;
-        UD60x18 allocations;
-        UD60x18 userLastAllocationPerTokenStored;
+        UD60x18 meritAllocations;
+        UD60x18 userLastMeritAllocationPerTokenStored;
         uint256 balance;
     }
 }

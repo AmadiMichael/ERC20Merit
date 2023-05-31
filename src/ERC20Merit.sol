@@ -1,25 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-/// @title ERC20 Allocations
+/// @title ERC20 Merit
 /// @author Amadi Michael
 /// @notice An ERC20 token extension that automatically tracks and stores data
 /// that can be used to determine how loyal a holder was during any given period of time.
 
-import {AbstractERC20, IERC20Allocations} from "./AbstractERC20.sol";
+import {AbstractERC20, IERC20Merit} from "./AbstractERC20.sol";
 import {Arrays} from "./libraries/Arrays.sol";
 import {UD60x18, convert, ZERO} from "prb-math/UD60x18.sol";
 
-contract ERC20Allocations is AbstractERC20 {
+contract ERC20Merit is AbstractERC20 {
     using Arrays for uint256[];
 
-    /// @notice Allocation to be distributed per second
+    /// @notice MeritAllocation to be distributed per second
     uint256 public constant ALLOCATION_RATE = 10_000_000_000;
 
     /// @notice multiplier for scaling numerators before division.
     uint256 public constant MULTIPLIER = 1e18;
 
-    /// @notice Caps total supply, Important variable that ensures continued accuracy. see allocationPerToken function...
+    /// @notice Caps total supply, Important variable that ensures continued accuracy. see meritAllocationPerToken function...
     uint256 public immutable MAX_SUPPLY;
 
     /// @notice timestamp the first nonzero token amount was minted
@@ -45,7 +45,7 @@ contract ERC20Allocations is AbstractERC20 {
     mapping(address => UserBasedInfoSnapshots) private _userBasedInfoSnapshots;
 
     /**
-     * @notice Use ALLOCATION_RATE * 1 second * multiplier as max supply because in allocationPerToken() we divide
+     * @notice Use ALLOCATION_RATE * 1 second * multiplier as max supply because in meritAllocationPerToken() we divide
      * (ALLOCATION_RATE * seconds since last update (minimum non-zero value of 1) * multiplier) by totalSupply which with a max supply
      * would have a value that at most equals the numerator here
      */
@@ -151,37 +151,38 @@ contract ERC20Allocations is AbstractERC20 {
         }
     }
 
-    /************************************************************* AUTOMATED ALLOCATION DISTRIBUTION ALGORITHM SECTION ******************************************************************* */
+    /************************************************************* AUTOMATED MERIT ALLOCATION DISTRIBUTION ALGORITHM SECTION ******************************************************************* */
 
     /// @notice updates generalBasedInfo and userBasedInfo of _account
-    function updateAllocation(
+    function updateMeritAllocation(
         address _account,
         bool updateRewardPerTokenStored,
-        UD60x18 transientAllocationPerTokenStored
+        UD60x18 transientMeritAllocationPerTokenStored
     ) private returns (UD60x18) {
-        // only updates generalBasedInfo if its updateAllocationPerToken is true which saves gas
+        // only updates generalBasedInfo if its updateMeritAllocationPerToken is true which saves gas
         // by avoiding storing the same data twice in cases like transfer and transferFrom
         if (updateRewardPerTokenStored) {
-            transientAllocationPerTokenStored = allocationPerToken();
+            transientMeritAllocationPerTokenStored = meritAllocationPerToken();
             generalBasedInfo
-                .allocationPerTokenStored = transientAllocationPerTokenStored;
-            generalBasedInfo.totalAllocations = _getTotalAllocations();
+                .meritAllocationPerTokenStored = transientMeritAllocationPerTokenStored;
+            generalBasedInfo
+                .totalMeritAllocations = _getTotalMeritAllocations();
             generalBasedInfo.lastUpdateTime = block.timestamp;
         }
 
-        userBasedInfo[_account].allocations = _allocated(
+        userBasedInfo[_account].meritAllocations = _allocated(
             _account,
-            transientAllocationPerTokenStored
+            transientMeritAllocationPerTokenStored
         );
         userBasedInfo[_account]
-            .userLastAllocationPerTokenStored = transientAllocationPerTokenStored;
+            .userLastMeritAllocationPerTokenStored = transientMeritAllocationPerTokenStored;
         userBasedInfo[_account].lastUpdateTime = block.timestamp;
 
-        return transientAllocationPerTokenStored;
+        return transientMeritAllocationPerTokenStored;
     }
 
     /// @notice updates the SectionBasedInfoSnapshot with the past one before updating it
-    function stopAllocationDistribution() private {
+    function stopMeritAllocationDistribution() private {
         _updateSectionBasedInfoSnapshot();
         sectionBasedInfo = SectionBasedInfo({
             startTime: uint128(block.timestamp),
@@ -189,35 +190,40 @@ contract ERC20Allocations is AbstractERC20 {
         });
     }
 
-    /// @notice updates the SectionBasedInfoSnapshot if allocation distribution is being resumed
-    /// updtaes last update time to be == block.timepstamp to avoid total allocations accounting for time when total supply was 0
-    function resumeAllocationDistribution() private {
-        /// if allocation distribution is currently paused...
-        if (isAllocationsPaused()) {
+    /// @notice updates the SectionBasedInfoSnapshot if meritAllocation distribution is being resumed
+    /// updtaes last update time to be == block.timepstamp to avoid total meritAllocations accounting for time when total supply was 0
+    function resumeMeritAllocationDistribution() private {
+        /// if meritAllocation distribution is currently paused...
+        if (isMeritAllocationsPaused()) {
             _updateSectionBasedInfoSnapshot();
             sectionBasedInfo.endTime = uint128(block.timestamp);
         }
-        // set lastUpdateTime to be now if total supply == 0 (i.e if allocation is paused and we are minting a non zero value)
+        // set lastUpdateTime to be now if total supply == 0 (i.e if meritAllocation is paused and we are minting a non zero value)
         // not within the if block to avoid updating snapshot at initTime
         generalBasedInfo.lastUpdateTime = block.timestamp;
     }
 
-    function isAllocationToBePaused() internal view virtual returns (bool) {
+    function isMeritAllocationToBePaused()
+        internal
+        view
+        virtual
+        returns (bool)
+    {
         return totalSupply == 0;
     }
 
-    function isAllocationsPaused() public view virtual returns (bool) {
+    function isMeritAllocationsPaused() public view virtual returns (bool) {
         return sectionBasedInfo.startTime != 0 && sectionBasedInfo.endTime == 0;
     }
 
     /// @notice called after `transferTakeFrom` to check if the the transaction made totalSupply to be 0 (ie the tx burnt all of totalSupply)
     function checkIfZeroSupply() private {
-        if (isAllocationToBePaused()) stopAllocationDistribution();
+        if (isMeritAllocationToBePaused()) stopMeritAllocationDistribution();
     }
 
     /// @notice called before transferGiveTo to check if the totalSupply for that asset is 0 (ie the tx is going to mint a non-zero amount of tokens).
     function checkIfNonZeroSupply() private {
-        if (isAllocationToBePaused()) resumeAllocationDistribution();
+        if (isMeritAllocationToBePaused()) resumeMeritAllocationDistribution();
     }
 
     /**
@@ -231,20 +237,24 @@ contract ERC20Allocations is AbstractERC20 {
     ) private {
         if (txType == TransactionType.MINT) {
             checkIfNonZeroSupply(); // checks before minting if supply is 0 ie will go to non-zero since owner cannot mint 0
-            updateAllocation(to, true, ZERO);
+            updateMeritAllocation(to, true, ZERO);
             transferGiveTo(to, _amount, true);
         } else if (txType == TransactionType.BURN) {
-            updateAllocation(from, true, ZERO);
+            updateMeritAllocation(from, true, ZERO);
             transferTakeFrom(from, _amount, true);
             checkIfZeroSupply(); // checks after transferTakeFrom (and if it is a burn tx) if supply is now zero
         } else {
-            UD60x18 transientAllocationPerTokenStored = updateAllocation(
-                from,
-                true,
-                ZERO
-            ); // transient cache
+            UD60x18 transientMeritAllocationPerTokenStored = updateMeritAllocation(
+                    from,
+                    true,
+                    ZERO
+                ); // transient cache
             transferTakeFrom(from, _amount, false);
-            updateAllocation(to, false, transientAllocationPerTokenStored);
+            updateMeritAllocation(
+                to,
+                false,
+                transientMeritAllocationPerTokenStored
+            );
             transferGiveTo(to, _amount, false);
         }
     }
@@ -289,21 +299,22 @@ contract ERC20Allocations is AbstractERC20 {
         }
     }
 
-    /************************************************************* INTERNAL ALLOCATION CALCULATION HELPERS ******************************************************************* */
+    /************************************************************* INTERNAL MERIT ALLOCATION CALCULATION HELPERS ******************************************************************* */
 
-    function allocationPerToken()
+    function meritAllocationPerToken()
         private
         view
-        returns (UD60x18 allocationPerTokenStored)
+        returns (UD60x18 meritAllocationPerTokenStored)
     {
         // Scaled up to MULTIPLIER for better accuracy
-        // ensure that totalsupply is at least equal to the allocation to be distrubuted to a user in one second (allocation_RATE * 1 second * MULTIPLIER)
+        // ensure that totalsupply is at least equal to the meritAllocation to be distrubuted to a user in one second (meritAllocation_RATE * 1 second * MULTIPLIER)
         // if it's higher, even by 1, the division returns 0. This is prevented by MAX_SUPPLY variable
 
-        allocationPerTokenStored = generalBasedInfo.allocationPerTokenStored;
+        meritAllocationPerTokenStored = generalBasedInfo
+            .meritAllocationPerTokenStored;
 
         if (generalBasedInfo.totalSupply > 0) {
-            allocationPerTokenStored = allocationPerTokenStored.add(
+            meritAllocationPerTokenStored = meritAllocationPerTokenStored.add(
                 convert(
                     ALLOCATION_RATE *
                         (block.timestamp - generalBasedInfo.lastUpdateTime) *
@@ -314,29 +325,29 @@ contract ERC20Allocations is AbstractERC20 {
     }
 
     /// @notice returns current allocated coefficient of `_account`
-    /// @dev Whole equation `B(∑ CurrentallocationPerToken - ∑ user last allocation per token stored)`
+    /// @dev Whole equation `B(∑ CurrentMeritAllocationPerToken - ∑ user last meritAllocation per token stored)`
     function _allocated(
         address _account,
-        UD60x18 currentAllocationPerToken
+        UD60x18 currentMeritAllocationPerToken
     ) private view returns (UD60x18) {
         return
-            userBasedInfo[_account].allocations.add(
+            userBasedInfo[_account].meritAllocations.add(
                 convert(balanceOf[_account])
                     .mul(
-                        currentAllocationPerToken.sub(
+                        currentMeritAllocationPerToken.sub(
                             userBasedInfo[_account]
-                                .userLastAllocationPerTokenStored
+                                .userLastMeritAllocationPerTokenStored
                         )
                     )
                     .div(convert(MULTIPLIER))
             );
     }
 
-    /// @notice returns the current total allocations distributed
-    /// @dev adds last stored allocation to the allocations distributed between last update time and block.timestamp
-    function _getTotalAllocations() private view returns (uint256) {
+    /// @notice returns the current total meritAllocations distributed
+    /// @dev adds last stored meritAllocation to the meritAllocations distributed between last update time and block.timestamp
+    function _getTotalMeritAllocations() private view returns (uint256) {
         return
-            generalBasedInfo.totalAllocations +
+            generalBasedInfo.totalMeritAllocations +
             (ALLOCATION_RATE *
                 (block.timestamp - generalBasedInfo.lastUpdateTime));
     }
