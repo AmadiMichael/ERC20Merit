@@ -5,7 +5,7 @@ pragma solidity 0.8.19;
 /// @author Amadi Michael
 /// @notice Contract for calculating the total meritAllocation or/and meritAllocations of any given user at any given timestamp
 
-import {ERC20Merit, IERC20Merit} from "./ERC20Merit.sol";
+import {AbstractERC20Merit, IERC20Merit} from "./AbstractERC20Merit.sol";
 import {UD60x18, convert} from "prb-math/UD60x18.sol";
 
 contract ERC20MeritLibrary {
@@ -15,16 +15,16 @@ contract ERC20MeritLibrary {
         uint256 start,
         uint256 end
     ) external view returns (uint256 meritAllocation) {
-        uint256 multiplier = ERC20Merit(assetAddress).MULTIPLIER();
+        uint256 multiplier = AbstractERC20Merit(assetAddress).MULTIPLIER();
 
         uint256 meritAllocationAtStartTime = _allocated(
-            ERC20Merit(assetAddress),
+            AbstractERC20Merit(assetAddress),
             _account,
             start,
             multiplier
         );
         uint256 meritAllocationAtEndTime = _allocated(
-            ERC20Merit(assetAddress),
+            AbstractERC20Merit(assetAddress),
             _account,
             end,
             multiplier
@@ -39,8 +39,14 @@ contract ERC20MeritLibrary {
         address _account,
         uint256 time
     ) external view returns (uint256 meritAllocation) {
-        uint256 multiplier = ERC20Merit(assetAddress).MULTIPLIER();
-        return _allocated(ERC20Merit(assetAddress), _account, time, multiplier);
+        uint256 multiplier = AbstractERC20Merit(assetAddress).MULTIPLIER();
+        return
+            _allocated(
+                AbstractERC20Merit(assetAddress),
+                _account,
+                time,
+                multiplier
+            );
     }
 
     function totalMeritAllocationBetween(
@@ -49,11 +55,11 @@ contract ERC20MeritLibrary {
         uint256 end
     ) external view returns (uint256 totalMeritAllocations) {
         uint256 totalMeritAllocationsAtStartTime = _getTotalMeritAllocations(
-            ERC20Merit(assetAddress),
+            AbstractERC20Merit(assetAddress),
             start
         );
         uint256 totalMeritAllocationsAtEndTime = _getTotalMeritAllocations(
-            ERC20Merit(assetAddress),
+            AbstractERC20Merit(assetAddress),
             end
         );
         return
@@ -66,11 +72,12 @@ contract ERC20MeritLibrary {
         address assetAddress,
         uint256 time
     ) external view returns (uint256 _totalMeritAllocations) {
-        return _getTotalMeritAllocations(ERC20Merit(assetAddress), time);
+        return
+            _getTotalMeritAllocations(AbstractERC20Merit(assetAddress), time);
     }
 
     function _getTotalMeritAllocations(
-        ERC20Merit token,
+        AbstractERC20Merit token,
         uint256 time
     ) private view returns (uint256 _totalMeritAllocations) {
         IERC20Merit.GeneralBasedInfo memory generalBasedInfo = token
@@ -114,7 +121,7 @@ contract ERC20MeritLibrary {
     }
 
     function _allocated(
-        ERC20Merit token,
+        AbstractERC20Merit token,
         address _account,
         uint256 time,
         uint256 multiplier
