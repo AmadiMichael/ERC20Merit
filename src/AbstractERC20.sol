@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 /// @title ERC20 Abstract Contract
 /// @author Amadi Michael
 
-import {ERC20 as SolmateERC20} from "solmate/tokens/ERC20.sol";
+import {ERC20 as SolmateERC20} from "./deps/ERC20.sol";
 import {IERC20Merit} from "./IERC20Merit.sol";
 
 abstract contract AbstractERC20 is SolmateERC20, IERC20Merit {
@@ -48,16 +48,19 @@ abstract contract AbstractERC20 is SolmateERC20, IERC20Merit {
         address to,
         uint256 amount
     ) public virtual override returns (bool) {
-        uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.
-
-        if (allowed != type(uint256).max) {
-            if (allowed < amount) revert InsufficientAllowance(allowed, amount);
-            allowance[from][msg.sender] = allowed - amount;
-        }
-
+        checkApproval(from, amount);
         _transfer(from, to, amount);
 
         return true;
+    }
+
+    function checkApproval(address from, uint256 amount) internal virtual {
+        uint256 allowed = _allowance[from][msg.sender]; // Saves gas for limited approvals.
+
+        if (allowed != type(uint256).max) {
+            if (allowed < amount) revert InsufficientAllowance(allowed, amount);
+            _allowance[from][msg.sender] = allowed - amount;
+        }
     }
 
     /// @notice override SolmateERC20 transfer function to make it call internal _transfer function
@@ -116,7 +119,7 @@ abstract contract AbstractERC20 is SolmateERC20, IERC20Merit {
             if (recoveredAddress == address(0) || recoveredAddress != owner)
                 revert InvalidSigner();
 
-            allowance[recoveredAddress][spender] = value;
+            _allowance[recoveredAddress][spender] = value;
         }
 
         emit Approval(owner, spender, value);

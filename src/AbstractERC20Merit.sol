@@ -252,7 +252,7 @@ contract AbstractERC20Merit is AbstractERC20 {
         uint256 _amount,
         bool updateTotalSupply
     ) private {
-        uint256 fromBalance = balanceOf[user];
+        uint256 fromBalance = _balanceOf[user];
         if (fromBalance < _amount)
             revert InsufficientBalance(fromBalance, _amount);
         unchecked {
@@ -262,7 +262,7 @@ contract AbstractERC20Merit is AbstractERC20 {
                 generalBasedInfo.totalSupply = _totalSupply - _amount;
             }
             uint256 newBalance = fromBalance - _amount;
-            balanceOf[user] = newBalance;
+            _balanceOf[user] = newBalance;
             userBasedInfo[user].balance = newBalance;
         }
     }
@@ -280,8 +280,8 @@ contract AbstractERC20Merit is AbstractERC20 {
                 totalSupply = _totalSupply + _amount;
                 generalBasedInfo.totalSupply = _totalSupply + _amount;
             }
-            uint256 fromBalance = balanceOf[user];
-            balanceOf[user] = fromBalance + _amount;
+            uint256 fromBalance = _balanceOf[user];
+            _balanceOf[user] = fromBalance + _amount;
             userBasedInfo[user].balance = fromBalance + _amount;
         }
     }
@@ -319,7 +319,7 @@ contract AbstractERC20Merit is AbstractERC20 {
     ) private view returns (UD60x18) {
         return
             userBasedInfo[_account].meritAllocations.add(
-                convert(balanceOf[_account])
+                convert(_balanceOf[_account])
                     .mul(
                         currentMeritAllocationPerToken.sub(
                             userBasedInfo[_account]
