@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 /// @title ERC20 Abstract Contract
 /// @author Amadi Michael
 
-import {ERC20 as SolmateERC20} from "./deps/ERC20.sol";
+import {SolmateERC20} from "./deps/SolmateERC20.sol";
 import {IERC20Merit} from "./IERC20Merit.sol";
 
 abstract contract AbstractERC20 is SolmateERC20, IERC20Merit {
