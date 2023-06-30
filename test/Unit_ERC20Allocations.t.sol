@@ -640,4 +640,64 @@ contract ERC20Merit_Test is Test {
             allocationsLibrary.getTotalMeritAllocations(address(token), 56)
         );
     }
+
+    function test_logGasUsage() external {
+        /************************* MINT GAS COST ***************************/
+        uint256 gas = gasleft();
+        token.mint(address(this), 1e18);
+        console2.log(
+            "Mint (Fisrt In a block) gas used:",
+            (gas - gasleft()) + 21000
+        );
+        gas = gasleft();
+        token.mint(address(this), 1e18);
+        console2.log(
+            "Mint (Not first in a block) gas used:",
+            (gas - gasleft()) + 21000
+        );
+
+        /************************* TRANSFER GAS COST ***************************/
+        gas = gasleft();
+        token.transfer(address(0xBEEF), 0.25e18);
+        console2.log(
+            "Transfer (First transfer in a block) gas used:",
+            (gas - gasleft()) + 21000
+        );
+        gas = gasleft();
+        token.transfer(address(0xBEEF), 0.25e18);
+        console2.log(
+            "Transfer (non-first in a block) gas used:",
+            (gas - gasleft()) + 21000
+        );
+
+        /************************* APPROVE GAS COST ***************************/
+        gas = gasleft();
+        token.approve(address(0xBEEF), 0.5e18);
+        console2.log("Approve gas used:", (gas - gasleft()) + 21000);
+
+        /************************* TRANSFER FROM GAS COST ***************************/
+        vm.startPrank(address(0xBEEF));
+        gas = gasleft();
+        token.transferFrom(address(this), address(0xBEEF), 0.25e18);
+        console2.log("TransferFrom gas used:", (gas - gasleft()) + 21000);
+        gas = gasleft();
+        token.transferFrom(address(this), address(0xBEEF), 0.25e18);
+        console2.log("TransferFrom gas used:", (gas - gasleft()) + 21000);
+        vm.stopPrank();
+
+        /************************* BURN GAS COST ***************************/
+        gas = gasleft();
+        token.burn(address(0xBEEF), 0.5e18);
+        console2.log(
+            "Burn (not first in a block) gas used:",
+            (gas - gasleft()) + 21000
+        );
+        vm.roll(block.number + 1);
+        gas = gasleft();
+        token.burn(address(this), 1e18);
+        console2.log(
+            "Burn (first in a block) gas used:",
+            (gas - gasleft()) + 21000
+        );
+    }
 }
