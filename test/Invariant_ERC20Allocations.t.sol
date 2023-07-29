@@ -27,79 +27,10 @@ contract ERC20MeritInvariants is Test {
         erc20AllocationsInvariantsHandler
             .assertTotalAllocationsIsGreaterThanOrEqualToEarneds(42, 42);
     }
-
-    // function testThis() public {
-    //     vm.warp(1);
-    //     token.mint(address(this), 1e18);
-    //     vm.warp(100);
-    //     token.mint(address(this), 1e18);
-    //     vm.warp(200);
-
-    //     console.log(
-    //         "total allocations",
-    //         allocationsLibrary.getTotalMeritAllocations(address(token), 200)
-    //     );
-    //     console.log(
-    //         "allocation ",
-    //         allocationsLibrary.allocated(address(token), address(this), 200)
-    //     );
-
-    //     console.log(
-    //         "total allocations",
-    //         allocationsLibrary.getTotalMeritAllocations(address(token), 102)
-    //     );
-    //     console.log(
-    //         "allocation ",
-    //         allocationsLibrary.allocated(address(token), address(this), 102)
-    //     );
-
-    //     // token.mint(
-    //     //     address(this),
-    //     //     1167805047274141983172893812
-    //     // );
-    //     // console.log(token.MAX_SUPPLY());
-    //     // vm.warp(5);
-    //     // token.mint(address(this), 7301);
-    //     // vm.warp(27);
-    //     // token.mint(
-    //     //     address(0xabcd),
-    //     //     36717430630808027468154168254911183362900000000000 - 7303
-    //     // );
-    //     // vm.warp(66);
-    //     // token.mint(address(0xcafe), 1);
-    //     // vm.warp(150);
-    //     // token.mint(address(0xabcd), 1);
-    //     // console.log(
-    //     //     "total allocation at 3 by 4",
-    //     //     allocationsLibrary.getTotalMeritAllocations(address(token), 134)
-    //     // );
-    //     // console.log(
-    //     //     "allocation at 3 by 4",
-    //     //     allocationsLibrary.allocated(address(token), address(this), 134)
-    //     // );
-    //     // console.log(
-    //     //     "allocation at 3 by 4",
-    //     //     allocationsLibrary.allocated(address(token), address(0xabcd), 134)
-    //     // );
-    //     // console.log(
-    //     //     "allocation at 3 by 4",
-    //     //     allocationsLibrary.allocated(address(token), address(0xcafe), 134)
-    //     // );
-    //     // // token.transfer(address(this), 1167805047274141983172893812 / 2);
-    //     // // vm.warp(7);
-    //     // // console.log(
-    //     // //     "total allocation at 3 by 4",
-    //     // //     allocationsLibrary.getTotalMeritAllocations(address(token), 6)
-    //     // // );
-    //     // // console.log(
-    //     // //     "allocation at 3 by 4",
-    //     // //     allocationsLibrary.allocated(address(token), address(this), 6)
-    //     // // );
-    // }
 }
 
 contract ERC20MeritInvariantsHandler is Test {
-    uint256 private constant SKIP_MAX = 1000 * 365 days; // 100 years skips (i.e difference between two transactions sent to the contract) possible
+    uint256 private constant SKIP_MAX = 100 * 365 days; // 100 years skips (i.e difference between two transactions sent to the contract) possible
     ERC20Merit token;
     uint256 public sum;
     ERC20MeritLibrary allocationsLibrary;
