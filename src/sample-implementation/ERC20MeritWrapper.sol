@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 /// @title ERC20 Merit Unguarded Mintable Implementation Example
 /// @author Amadi Michael
-/// @notice Unguarded Mintable Implementation Example
+/// @notice ERC20 Merit Wrapper Implementation Example
 
 import {AbstractERC20Merit} from "../AbstractERC20Merit.sol";
 import {SolmateERC20} from "../deps/SolmateERC20.sol";
