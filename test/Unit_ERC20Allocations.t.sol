@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 
 import "forge-std/Test.sol";
-import {ERC20Merit, UD60x18, convert} from "../src/ERC20Merit.sol";
+import {ERC20Merit} from "../src/sample-implementation/ERC20Merit.sol";
 import {ERC20MeritLibrary} from "../src/ERC20MeritLibrary.sol";
 
 /// modified from solmate ERC20 unit test (https://github.com/transmissions11/solmate/blob/main/src/test/ERC20.t.sol)
@@ -651,53 +651,46 @@ contract ERC20Merit_Test is Test {
         );
         gas = gasleft();
         token.mint(address(this), 1e18);
-        console2.log(
-            "Mint (Not first in a block) gas used:",
-            (gas - gasleft()) + 21000
-        );
+        gas = (gas - gasleft()) + 21000;
+        console2.log("Mint (Not first in a block) gas used:", gas);
 
         /************************* TRANSFER GAS COST ***************************/
         gas = gasleft();
         token.transfer(address(0xBEEF), 0.25e18);
-        console2.log(
-            "Transfer (First transfer in a block) gas used:",
-            (gas - gasleft()) + 21000
-        );
+        gas = (gas - gasleft()) + 21000;
+        console2.log("Transfer (First transfer in a block) gas used:", gas);
         gas = gasleft();
         token.transfer(address(0xBEEF), 0.25e18);
-        console2.log(
-            "Transfer (non-first in a block) gas used:",
-            (gas - gasleft()) + 21000
-        );
+        gas = (gas - gasleft()) + 21000;
+        console2.log("Transfer (non-first in a block) gas used:", gas);
 
         /************************* APPROVE GAS COST ***************************/
         gas = gasleft();
         token.approve(address(0xBEEF), 0.5e18);
-        console2.log("Approve gas used:", (gas - gasleft()) + 21000);
+        gas = (gas - gasleft()) + 21000;
+        console2.log("Approve gas used:", gas);
 
         /************************* TRANSFER FROM GAS COST ***************************/
         vm.startPrank(address(0xBEEF));
         gas = gasleft();
         token.transferFrom(address(this), address(0xBEEF), 0.25e18);
-        console2.log("TransferFrom gas used:", (gas - gasleft()) + 21000);
+        gas = (gas - gasleft()) + 21000;
+        console2.log("TransferFrom gas used:", gas);
         gas = gasleft();
         token.transferFrom(address(this), address(0xBEEF), 0.25e18);
-        console2.log("TransferFrom gas used:", (gas - gasleft()) + 21000);
+        gas = (gas - gasleft()) + 21000;
+        console2.log("TransferFrom gas used:", gas);
         vm.stopPrank();
 
         /************************* BURN GAS COST ***************************/
         gas = gasleft();
         token.burn(address(0xBEEF), 0.5e18);
-        console2.log(
-            "Burn (not first in a block) gas used:",
-            (gas - gasleft()) + 21000
-        );
+        gas = (gas - gasleft()) + 21000;
+        console2.log("Burn (not first in a block) gas used:", gas);
         vm.roll(block.number + 1);
         gas = gasleft();
         token.burn(address(this), 1e18);
-        console2.log(
-            "Burn (first in a block) gas used:",
-            (gas - gasleft()) + 21000
-        );
+        gas = (gas - gasleft()) + 21000;
+        console2.log("Burn (first in a block) gas used:", gas);
     }
 }

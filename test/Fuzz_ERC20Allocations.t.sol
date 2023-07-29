@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 
 import "forge-std/Test.sol";
-import {ERC20Merit} from "../src/ERC20Merit.sol";
+import {ERC20Merit} from "../src/sample-implementation/ERC20Merit.sol";
 import {ERC20MeritLibrary} from "../src/ERC20MeritLibrary.sol";
 
 /// modified from solmate ERC20 fuzz test (https://github.com/transmissions11/solmate/blob/main/src/test/ERC20.t.sol)

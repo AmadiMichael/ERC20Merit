@@ -6,7 +6,7 @@ pragma solidity 0.8.19;
 /// @notice An ERC20 token extension that automatically tracks and stores data
 /// that can be used to determine how loyal a holder was during any given period of time.
 
-import {AbstractERC20, IERC20Merit} from "./AbstractERC20.sol";
+import {AbstractERC20} from "./AbstractERC20.sol";
 import {Arrays} from "./libraries/Arrays.sol";
 import {UD60x18, convert, ZERO} from "prb-math/UD60x18.sol";
 
@@ -190,6 +190,7 @@ contract AbstractERC20Merit is AbstractERC20 {
         generalBasedInfo.lastUpdateTime = block.timestamp;
     }
 
+    ///; @notice returns true if the merit allocation is to be paused
     function isMeritAllocationToBePaused()
         internal
         view
@@ -199,6 +200,7 @@ contract AbstractERC20Merit is AbstractERC20 {
         return totalSupply == 0;
     }
 
+    /// @notice returns true if merit allocation distribution is paused
     function isMeritAllocationsPaused() public view returns (bool) {
         return sectionBasedInfo.startTime != 0 && sectionBasedInfo.endTime == 0;
     }

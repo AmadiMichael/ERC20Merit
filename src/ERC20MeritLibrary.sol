@@ -5,7 +5,8 @@ pragma solidity 0.8.19;
 /// @author Amadi Michael
 /// @notice Contract for calculating the total meritAllocation or/and meritAllocations of any given user at any given timestamp
 
-import {AbstractERC20Merit, IERC20Merit} from "./AbstractERC20Merit.sol";
+import {AbstractERC20Merit} from "./AbstractERC20Merit.sol";
+import {IERC20Merit} from "./IERC20Merit.sol";
 import {UD60x18, convert} from "prb-math/UD60x18.sol";
 
 contract ERC20MeritLibrary {

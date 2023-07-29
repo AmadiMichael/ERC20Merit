@@ -13,7 +13,7 @@ runs = 1000
 
 [invariant]
 fail_on_revert = true
-depth = 30
+depth = 100
 
 [profile.ci]
 verbosity = 4
