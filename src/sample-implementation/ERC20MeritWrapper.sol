@@ -15,8 +15,8 @@ contract ERC20MeritWrapper is AbstractERC20Merit {
         address _token
     )
         AbstractERC20Merit(
-            SolmateERC20(_token).name(),
-            SolmateERC20(_token).symbol(),
+            string.concat("Wrapped", SolmateERC20(_token).name()),
+            string.concat("W", SolmateERC20(_token).symbol()),
             SolmateERC20(_token).decimals()
         )
     {
